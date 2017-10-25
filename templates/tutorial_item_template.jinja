@@ -1,0 +1,17 @@
+{% extends "page_template.jinja" %}
+
+{% block title %}{{ tutorial.title }}{% endblock %}
+
+{% block content %}
+<body>
+  <h1 style="line-height: 0.7em;">{{ tutorial.title }}</h1>
+  <h3 style="line-height: 0.7em;"><em>{{ tutorial.author }}</em></h3>
+  <table width="656">
+    <tr>
+      <td>
+        {{ tutorial.content }}
+      </td>
+    </tr>
+  </table>
+</body>
+{% endblock %}
