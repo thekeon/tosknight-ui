@@ -141,7 +141,7 @@ a.large-link:before {
 	height: 106px;
 	margin-bottom: 30px;
 	overflow: hidden;
-	background: #0c2033 url(../img/processing-web.png) center center no-repeat;
+	background: #0c2033 url(../img/todo.png) center center no-repeat;
 	background-size: 900px 106px;	
 	position:relative;
 }
@@ -151,10 +151,10 @@ a.large-link:before {
 	width: 231px;
 	height: 36px;
 	margin: 20px 0 0 30px;
-	background: transparent url(../img/processing-logo.png) center center no-repeat;
-	background-image: -webkit-linear-gradient(transparent, transparent), url(../img/processing-logo.svg);
-	background-image: -moz-linear-gradient(transparent, transparent), url(../img/processing-logo.svg);
-	background-image: linear-gradient(transparent, transparent), url(../img/processing-logo.svg);
+	background: transparent url(../img/todo.png) center center no-repeat;
+	background-image: -webkit-linear-gradient(transparent, transparent), url(../img/todo.svg);
+	background-image: -moz-linear-gradient(transparent, transparent), url(../img/todo.svg);
+	background-image: linear-gradient(transparent, transparent), url(../img/todo.svg);
 }
 #header .processing-logo.no-cover:before {
 	position: relative;
