@@ -18,12 +18,10 @@ class Generator(object):
     def __init__(self, root, env):
         self.source_generator = SourceGenerator(root, env)
         self.cover_generator = CoverGenerator(env)
-        # self.tutorial_generator = TurotialGenerator(env)
 
     def generate(self):
         self.cover_generator.generate()
         self.source_generator.generate()
-        # self.tutorial_generator.generate()
 
 
 class CoverGenerator(object):
@@ -35,59 +33,6 @@ class CoverGenerator(object):
         cover_template = self.env.get_template('index.jinja')
         with open(os.path.join(self.ui_dir, 'index.html'), 'w+') as f:
             f.write(cover_template.render())
-
-
-class TurotialGenerator(object):
-    def __init__(self, env):
-        self.env = env
-        self.input_dir = tutorials_dir
-        self.output_dir = output_tutorials_dir
-
-    def generate(self):
-        file_name = os.path.join(self.input_dir, 'index.yml')
-        items = []
-        with open(file_name) as f:
-            raw_yaml_doc = f.read()
-            yaml_obj = yaml.load(raw_yaml_doc)
-            items = yaml_obj['index']
-        tutorial_items = []
-        for item in items:
-            tutorial_item = TutorialItem(
-                self.env, self.input_dir, item, self.output_dir)
-            with open(os.path.join(self.output_dir, item, 'index.html'), 'w+') as f:
-                item_template = self.env.get_template(
-                    'tutorial_item_template.jinja')
-                f.write(item_template.render(tutorial=tutorial_item))
-                tutorial_items.append(tutorial_item)
-        index_template = self.env.get_template('tutorial_index_template.jinja')
-        with open(os.path.join(self.output_dir, 'index.html'), 'w+') as f:
-            f.write(index_template.render(tutorials=tutorial_items))
-
-
-class TutorialItem(object):
-    def __init__(self, env, input_dir, item, output_dir):
-        self.env = env
-        self.input_dir = input_dir
-        self.item = item
-        self.item_input_dir = os.path.join(self.input_dir, self.item)
-        self.output_dir = output_dir
-        self.item_output_dir = os.path.join(self.output_dir, self.item)
-        self.parse_meta()
-
-    def parse_meta(self):
-        with open(os.path.join(self.item_input_dir, meta_file), 'r') as f:
-            raw_yaml_doc = f.read()
-            yaml_obj = yaml.load(raw_yaml_doc)
-            self.title = yaml_obj['title']
-            # The directory must be named 'imgs'.
-            self.image = os.path.join(self.item, 'imgs', yaml_obj['image'])
-            self.url = self.item + '/'
-            self.author = yaml_obj['author']
-            self.introduction = yaml_obj['introduction']
-            self.level = yaml_obj['level']
-            with open(os.path.join(
-                self.item_input_dir, 'index.md'), 'r') as index_f:
-                self.content = markdown.markdown(index_f.read())
 
 
 class SourceGenerator(object):
