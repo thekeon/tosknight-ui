@@ -1,6 +1,6 @@
-# Processing.R Documentation
+# Terms of Service Knight
 
-The documentation is genrated by [Processing.R-docs-tools](https://github.com/processing-r/Processing.R-docs-tools). If you want to update the documantion, please use the tools.
+The documentation is genrated by [tosknight-ui](https://github.com/siglt/tosknight-ui). If you want to update the content, please use the tools.
 
 You could use [static-server](https://www.npmjs.com/package/static-server) to preview the documentaion in localhost:
 

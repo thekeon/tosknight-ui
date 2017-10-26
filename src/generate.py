@@ -13,6 +13,7 @@ import click
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 meta_file = '.meta.yml'
+URL = 'https://siglt.github.io/tosknight-storage/'
 
 class Generator(object):
     def __init__(self, root, env):
@@ -45,7 +46,6 @@ class SourceGenerator(object):
 
     def generate(self):
         self.parse_category()
-        self.render_source_items()
         self.render_source_index()
 
     def parse_category(self):
@@ -53,10 +53,13 @@ class SourceGenerator(object):
             # If it is not README.md, parse it.
             sourcedir = os.path.join(self.root_dir, directory)
             if os.path.isdir(sourcedir) and os.path.basename(sourcedir) != '.git':
+                mkdir_p(os.path.join(self.output_html_dir, os.path.basename(sourcedir)))
                 category = self.parse_meta(os.path.join(sourcedir, meta_file))
-                print(category)
                 for filename in os.listdir(sourcedir):
-                    item = SourceSnapshot(os.path.join(sourcedir, filename), category)
+                    if filename[0] == '.':
+                        continue
+                    item = SourceSnapshot(directory, os.path.join(directory, filename), category)
+                    self.render_source_item(os.path.join(self.output_html_dir, os.path.basename(sourcedir)), item)
                     self.source_items.append(item)
 
     def parse_meta(self, file_name):
@@ -66,13 +69,12 @@ class SourceGenerator(object):
             self.categories.append(yaml_obj['name'])
             return yaml_obj['name']
 
-    def render_source_items(self):
-        # for item in self.source_items:
-        #     source_template = self.env.get_template(
-        #         'source_item_template.jinja')
-        #     with open(os.path.join(self.output_html_dir, ('%s.html' % item.name)), 'w+') as f:
-        #         f.write(source_template.render(
-        #             item=item, today=datetime.datetime.now().ctime()))
+    def render_source_item(self, directory, item):
+        source_template = self.env.get_template(
+            'source_item_template.jinja')
+        with open(os.path.join(directory, ('%s.index.html' % item.name)), 'w+') as f:
+            f.write(source_template.render(
+                item=item, today=datetime.datetime.now().ctime()))
         pass
 
     def render_source_index(self):
@@ -103,11 +105,23 @@ class SourceGenerator(object):
 
 
 class SourceSnapshot(object):
-    def __init__(self, filename, category):
-        self.filename = filename
-        self.name = filename
+    def __init__(self, directory, absfilename, category):
+        self.filename = absfilename
+        self.directory = directory
+        self.name = os.path.basename(absfilename)
+        self.path = os.path.join(directory, ('%s.index.html' % self.name))
         self.category = category
+        self.URL = os.path.join(URL, self.directory, self.name)
 
+
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
 
 @click.command()
 @click.option('--storage-dir', default='', help='The location of tosknight storage')
