@@ -54,7 +54,7 @@ class SourceGenerator(object):
             sourcedir = os.path.join(self.root_dir, directory)
             if os.path.isdir(sourcedir) and os.path.basename(sourcedir) != '.git':
                 mkdir_p(os.path.join(self.output_html_dir, os.path.basename(sourcedir)))
-                category = self.parse_meta(os.path.join(sourcedir, meta_file))
+                category, caturl = self.parse_meta(os.path.join(sourcedir, meta_file))
                 for filename in os.listdir(sourcedir):
                     if filename[0] == '.':
                         continue
@@ -67,7 +67,7 @@ class SourceGenerator(object):
             raw_yaml_doc = f.read()
             yaml_obj = yaml.load(raw_yaml_doc)
             self.categories.append(yaml_obj['name'])
-            return yaml_obj['name']
+            return yaml_obj['name'], yaml_obj['url']
 
     def render_source_item(self, directory, item):
         source_template = self.env.get_template(
