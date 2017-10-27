@@ -13,7 +13,8 @@ import click
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 meta_file = '.meta.yml'
-URL = 'https://siglt.github.io/tosknight-storage/'
+HTMLURL = 'https://siglt.github.io/tosknight-storage/'
+MARKDOWNURL = 'https://github.com/siglt/tosknight-storage/blob/master/'
 
 class Generator(object):
     def __init__(self, root, env):
@@ -107,11 +108,21 @@ class SourceGenerator(object):
 class SourceSnapshot(object):
     def __init__(self, directory, absfilename, category):
         self.filename = absfilename
-        self.directory = directory
-        self.name = os.path.basename(absfilename)
-        self.path = os.path.join(directory, ('%s.index.html' % self.name))
+        # name is 2017-10-27-13:16:35.md
+        self.name = os.path.basename(absfilename).split('.')[0]
+        if self.name == 'latest':
+            self.displayname = '最新文本'
+        else:
+            self.displayname = self.name + ' 备份文本'
+        self.htmlname = ('.%s.html' % self.name)
+        self.markdownname = ('%s.md' % self.name)
+        # category is the title of terms of service.
         self.category = category
-        self.URL = os.path.join(URL, self.directory, self.name)
+        # directory is sha1(Source URL)
+        self.directory = directory
+        self.markdownURL = os.path.join(MARKDOWNURL, self.directory, self.markdownname)
+        self.htmlURL = os.path.join(HTMLURL, self.directory, self.htmlname)
+        self.path = os.path.join(directory, ('%s.index.html' % self.name))
 
 
 def mkdir_p(path):
