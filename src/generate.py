@@ -59,6 +59,8 @@ class SourceGenerator(object):
                 for filename in os.listdir(sourcedir):
                     if filename[0] == '.':
                         continue
+                    elif '.html' in filename:
+                        continue
                     item = SourceSnapshot(directory, os.path.join(directory, filename), category)
                     self.render_source_item(os.path.join(self.output_html_dir, os.path.basename(sourcedir)), item)
                     self.source_items.append(item)
@@ -114,7 +116,7 @@ class SourceSnapshot(object):
             self.displayname = '最新文本'
         else:
             self.displayname = self.name + ' 备份文本'
-        self.htmlname = ('.%s.html' % self.name)
+        self.htmlname = ('%s.html' % self.name)
         self.markdownname = ('%s.md' % self.name)
         # category is the title of terms of service.
         self.category = category
