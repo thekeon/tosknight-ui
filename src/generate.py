@@ -46,22 +46,22 @@ class SourceGenerator(object):
         self.source_items = []
 
     def generate(self):
-        self.parse_category()
+        self.parse()
         self.render_source_index()
 
-    def parse_category(self):
+    def parse(self):
         for directory in os.listdir(self.root_dir):
             # If it is not README.md, parse it.
             sourcedir = os.path.join(self.root_dir, directory)
             if os.path.isdir(sourcedir) and os.path.basename(sourcedir) != '.git':
                 mkdir_p(os.path.join(self.output_html_dir, os.path.basename(sourcedir)))
-                category, caturl = self.parse_meta(os.path.join(sourcedir, meta_file))
+                category, subcategory, caturl = self.parse_meta(os.path.join(sourcedir, meta_file))
                 for filename in os.listdir(sourcedir):
                     if filename[0] == '.':
                         continue
                     elif '.html' in filename:
                         continue
-                    item = SourceSnapshot(directory, os.path.join(directory, filename), category)
+                    item = SourceSnapshot(directory, os.path.join(directory, filename), subcategory, category)
                     self.render_source_item(os.path.join(self.output_html_dir, os.path.basename(sourcedir)), item)
                     self.source_items.append(item)
 
@@ -69,8 +69,8 @@ class SourceGenerator(object):
         with open(file_name) as f:
             raw_yaml_doc = f.read()
             yaml_obj = yaml.load(raw_yaml_doc)
-            self.categories.append(yaml_obj['name'])
-            return yaml_obj['name'], yaml_obj['url']
+            self.categories.append(yaml_obj['category'])
+            return yaml_obj['category'], yaml_obj['name'], yaml_obj['url']
 
     def render_source_item(self, directory, item):
         source_template = self.env.get_template(
@@ -88,17 +88,27 @@ class SourceGenerator(object):
                 categories[path] = list()
             categories[path].append(item)
         elements = list()
+        subcategories = dict()
         current_cat = None
-        for cat in self.categories:
+        current_subcat = None
+        for cat in sorted(categories.keys()):
             if cat != current_cat:
                 if current_cat is not None:
                     elements.append({'type': 'end-category', 'content': None})
                 elements.append({'type': 'start-category', 'content': cat})
                 current_cat = cat
-            elements.append({'type': 'start-list', 'content': None})
-            for item in sorted(categories[cat], key=lambda x: x.name):
-                elements.append({'type': 'link', 'content': item})
-            elements.append({'type': 'end-list', 'content': None})
+                for item in categories[current_cat]:
+                    if item.subcategory not in subcategories:
+                        if current_subcat is not None:
+                            elements.append({'type': 'end-subcategory', 'content': None})
+                        elements.append({'type': 'start-subcategory', 'content': item.subcategory})
+                        current_subcat = item.subcategory
+                    elements.append({'type': 'start-list', 'content': None})
+                    for sitem in sorted(categories[cat], key=lambda x: x.name):
+                        if sitem.subcategory == current_subcat:
+                            elements.append({'type': 'link', 'content': sitem})
+                    elements.append({'type': 'end-list', 'content': None})
+                elements.append({'type': 'end-subcategory', 'content': None})
         elements.append({'type': 'end-category', 'content': None})
 
         index_template = self.env.get_template(
@@ -108,7 +118,7 @@ class SourceGenerator(object):
 
 
 class SourceSnapshot(object):
-    def __init__(self, directory, absfilename, category):
+    def __init__(self, directory, absfilename, subcategory, category):
         self.filename = absfilename
         # name is 2017-10-27-13:16:35.md
         self.name = os.path.basename(absfilename).split('.')[0]
@@ -119,6 +129,7 @@ class SourceSnapshot(object):
         self.htmlname = ('%s.html' % self.name)
         self.markdownname = ('%s.md' % self.name)
         # category is the title of terms of service.
+        self.subcategory = subcategory
         self.category = category
         # directory is sha1(Source URL)
         self.directory = directory
