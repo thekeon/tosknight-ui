@@ -68,7 +68,7 @@ class SourceGenerator(object):
     def parse_meta(self, file_name):
         with open(file_name) as f:
             raw_yaml_doc = f.read()
-            yaml_obj = yaml.load(raw_yaml_doc)
+            yaml_obj = yaml.load(raw_yaml_doc, Loader=yaml.FullLoader)
             self.categories.append(yaml_obj['category'])
             return yaml_obj['category'], yaml_obj['name'], yaml_obj['url']
 
